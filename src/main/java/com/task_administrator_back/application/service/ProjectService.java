@@ -18,6 +18,4 @@ public interface ProjectService {
 
     void eliminateProject(ObjectId userId, ObjectId projectId);
 
-    void assertProjectBelongsToUser(ObjectId userId, ObjectId projectId);
-
 }

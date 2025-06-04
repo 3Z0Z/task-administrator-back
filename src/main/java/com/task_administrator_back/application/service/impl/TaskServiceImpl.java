@@ -7,8 +7,8 @@ import com.task_administrator_back.application.exception.TaskNotFoundException;
 import com.task_administrator_back.application.exception.UnauthorizedActionException;
 import com.task_administrator_back.application.model.Task;
 import com.task_administrator_back.application.repository.TaskRepository;
-import com.task_administrator_back.application.service.ProjectService;
 import com.task_administrator_back.application.service.TaskService;
+import com.task_administrator_back.application.utils.ValidateOwnerUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -18,17 +18,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final ProjectService projectService;
+    private final ValidateOwnerUtil validateOwnerUtil;
 
     @Override
     public void createTask(ObjectId userId, ObjectId projectId, CreateTaskDTO request) {
-        this.projectService.assertProjectBelongsToUser(userId, projectId);
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task newTask = Task.builder()
             .projectId(projectId)
             .taskName(request.taskName())
@@ -40,14 +42,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTaskById(ObjectId userId, ObjectId projectId, ObjectId taskId) {
-        this.projectService.assertProjectBelongsToUser(userId, projectId);
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task task = this.getTaskById(taskId);
         return this.mapTaskToTaskDto(task);
     }
 
     @Override
     public Page<TaskDTO> getAllProjectTasks(ObjectId userId, ObjectId projectId, int page, int size) {
-        this.projectService.assertProjectBelongsToUser(userId, projectId);
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "taskName");
         Page<Task> taskPage = this.taskRepository.findByProjectId(projectId, pageable);
         return taskPage.map(this::mapTaskToTaskDto);
@@ -55,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void editTask(ObjectId userId, ObjectId projectId, ObjectId taskId, EditTaskDTO request) {
-        this.projectService.assertProjectBelongsToUser(userId, projectId);
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task task = this.getTaskById(taskId);
         task.setTaskName(request.taskName() != null ? request.taskName() : task.getTaskName());
         task.setTaskDescription(request.taskDescription() != null ? request.taskDescription() : task.getTaskDescription());
@@ -65,12 +67,18 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void eliminateTask(ObjectId userId, ObjectId projectId, ObjectId taskId) {
-        this.projectService.assertProjectBelongsToUser(userId, projectId);
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task task = this.getTaskById(projectId);
         if (!task.getProjectId().equals(projectId)) {
             throw new UnauthorizedActionException("Unauthorized to apply any modification on task");
         }
         this.taskRepository.delete(task);
+    }
+
+    @Override
+    public void eliminateTaskForProject(ObjectId projectId) {
+        List<Task> taskList = this.taskRepository.findByProjectId(projectId);
+        this.taskRepository.deleteAll(taskList);
     }
 
     private Task getTaskById(ObjectId taskId) {

@@ -18,4 +18,6 @@ public interface TaskService {
 
     void eliminateTask(ObjectId userId, ObjectId projectId, ObjectId taskId);
 
+    void eliminateTaskForProject(ObjectId projectId);
+
 }

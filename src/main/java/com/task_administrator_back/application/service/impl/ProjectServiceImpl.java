@@ -8,6 +8,7 @@ import com.task_administrator_back.application.exception.UnauthorizedActionExcep
 import com.task_administrator_back.application.model.Project;
 import com.task_administrator_back.application.repository.ProjectRepository;
 import com.task_administrator_back.application.service.ProjectService;
+import com.task_administrator_back.application.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final TaskService taskService;
 
     @Override
     public void createProject(ObjectId userId, CreateProjectDTO request) {
@@ -66,15 +68,8 @@ public class ProjectServiceImpl implements ProjectService {
         if (!project.getUserId().equals(userId)) {
             throw new UnauthorizedActionException("Unauthorized to apply any modification on project");
         }
+        this.taskService.eliminateTaskForProject(projectId);
         this.projectRepository.delete(project);
-    }
-
-    @Override
-    public void assertProjectBelongsToUser(ObjectId userId, ObjectId projectId) {
-        boolean exists = projectRepository.existsByIdAndUserId(projectId, userId);
-        if (!exists) {
-            throw new UnauthorizedActionException("Project does not belong to the user");
-        }
     }
 
     private Project getProjectById(ObjectId projectId) {
