@@ -5,6 +5,7 @@ import com.task_administrator_back.application.exception.TaskNotFoundException;
 import com.task_administrator_back.application.exception.UnauthorizedActionException;
 import com.task_administrator_back.auth.exception.*;
 import com.task_administrator_back.shared.exception.response.ResponseException;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.HashMap;
 import java.util.Map;
 
+@Hidden
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
