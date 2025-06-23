@@ -68,7 +68,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void eliminateTask(ObjectId userId, ObjectId projectId, ObjectId taskId) {
         this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
-        Task task = this.getTaskById(projectId);
+        Task task = this.getTaskById(taskId);
         if (!task.getProjectId().equals(projectId)) {
             throw new UnauthorizedActionException("Unauthorized to apply any modification on task");
         }

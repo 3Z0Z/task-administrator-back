@@ -5,6 +5,7 @@ import com.task_administrator_back.application.exception.TaskNotFoundException;
 import com.task_administrator_back.application.exception.UnauthorizedActionException;
 import com.task_administrator_back.auth.exception.*;
 import com.task_administrator_back.shared.exception.response.ResponseException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +65,11 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(UnauthorizedActionException.class)
 	public ResponseEntity<ResponseException> handleUnauthorizedActionException(UnauthorizedActionException e) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseException(e.getMessage()));
+	}
+
+	@ExceptionHandler(ExpiredJwtException.class)
+	public ResponseEntity<ResponseException> handleExpiredJwtException(ExpiredJwtException e) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseException(e.getMessage()));
 	}
 
