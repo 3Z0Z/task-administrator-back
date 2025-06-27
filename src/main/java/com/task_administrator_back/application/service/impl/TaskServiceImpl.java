@@ -34,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
         Task newTask = Task.builder()
             .projectId(projectId)
             .taskName(request.taskName())
+            .isCompleted(false)
             .taskDescription(request.TaskDescription())
             .build();
         this.taskRepository.save(newTask);
@@ -50,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Page<TaskDTO> getAllProjectTasks(ObjectId userId, ObjectId projectId, int page, int size) {
         this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "taskName");
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "createdAt");
         Page<Task> taskPage = this.taskRepository.findByProjectId(projectId, pageable);
         return taskPage.map(this::mapTaskToTaskDto);
     }
@@ -59,6 +60,7 @@ public class TaskServiceImpl implements TaskService {
     public void editTask(ObjectId userId, ObjectId projectId, ObjectId taskId, EditTaskDTO request) {
         this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task task = this.getTaskById(taskId);
+        this.validateTaskIsFromProject(projectId, task);
         task.setTaskName(request.taskName() != null ? request.taskName() : task.getTaskName());
         task.setTaskDescription(request.taskDescription() != null ? request.taskDescription() : task.getTaskDescription());
         this.taskRepository.save(task);
@@ -66,12 +68,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public void changeTaskStatus(ObjectId userId, ObjectId projectId, ObjectId taskId) {
+        this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
+        Task task = this.getTaskById(taskId);
+        this.validateTaskIsFromProject(projectId, task);
+        task.setCompleted(!task.isCompleted());
+        this.taskRepository.save(task);
+        log.info("Task ID {} marked as {}", taskId, task.isCompleted() ? "completed" : "not completed");
+    }
+
+    @Override
     public void eliminateTask(ObjectId userId, ObjectId projectId, ObjectId taskId) {
         this.validateOwnerUtil.assertProjectBelongsToUser(userId, projectId);
         Task task = this.getTaskById(taskId);
-        if (!task.getProjectId().equals(projectId)) {
-            throw new UnauthorizedActionException("Unauthorized to apply any modification on task");
-        }
+        this.validateTaskIsFromProject(projectId, task);
         this.taskRepository.delete(task);
     }
 
@@ -91,8 +101,15 @@ public class TaskServiceImpl implements TaskService {
             .id(task.getId().toString())
             .taskName(task.getTaskName())
             .taskDescription(task.getTaskDescription())
+            .isCompleted(task.isCompleted())
             .createdAt(task.getCreatedAt())
             .build();
+    }
+
+    private void validateTaskIsFromProject(ObjectId projectId, Task task) {
+        if (!task.getProjectId().equals(projectId)) {
+            throw new UnauthorizedActionException("Unauthorized to apply any modification on task");
+        }
     }
 
 }

@@ -16,6 +16,8 @@ public interface TaskService {
 
     void editTask(ObjectId userId, ObjectId projectId, ObjectId taskId, EditTaskDTO request);
 
+    void changeTaskStatus(ObjectId userId, ObjectId projectId, ObjectId taskId);
+
     void eliminateTask(ObjectId userId, ObjectId projectId, ObjectId taskId);
 
     void eliminateTaskForProject(ObjectId projectId);

@@ -45,7 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectDTO> getAllProjects(ObjectId userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "projectName");
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.ASC, "createdAt");
         Page<Project> projectPage = this.projectRepository.findByUserId(userId, pageable);
         return projectPage.map(this::mapProjectToProjectDTO);
     }

@@ -17,6 +17,9 @@ public record TaskDTO(
     @JsonProperty("task_description")
     String taskDescription,
 
+    @JsonProperty("is_completed")
+    boolean isCompleted,
+
     @JsonProperty("created_at")
     Instant createdAt
 

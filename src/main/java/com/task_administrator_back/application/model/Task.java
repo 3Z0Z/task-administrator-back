@@ -26,6 +26,8 @@ public class Task {
 
     private String taskDescription;
 
+    private boolean isCompleted;
+
     @Builder.Default
     private Instant createdAt = Instant.now();
 

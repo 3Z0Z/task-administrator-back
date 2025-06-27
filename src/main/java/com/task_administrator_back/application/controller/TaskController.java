@@ -69,6 +69,17 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(new SuccessResponseDTO("Task updated successfully"));
     }
 
+    @PutMapping("/{projectId}/{taskId}/change-status")
+    public ResponseEntity<SuccessResponseDTO> changeTaskStatus(
+        HttpServletRequest servletRequest,
+        @PathVariable ObjectId projectId,
+        @PathVariable ObjectId taskId
+    ) {
+        String userId = this.jwtService.extractUserIdFromRequest(servletRequest);
+        this.taskService.changeTaskStatus(new ObjectId(userId), projectId, taskId);
+        return ResponseEntity.status(HttpStatus.OK).body(new SuccessResponseDTO("Task status changed successfully"));
+    }
+
     @DeleteMapping("/{projectId}/{taskId}")
     public ResponseEntity<SuccessResponseDTO> eliminateTask(
         HttpServletRequest servletRequest,
