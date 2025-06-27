@@ -16,7 +16,7 @@ public record CreateTaskDTO(
     @JsonProperty("task_description")
     @NotBlank(message = "Task Description is required")
     @Size(min = 10, max = 100, message = "Task Description must be between 10 and 100 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Task Description must not contain special characters")
+    @Pattern(regexp = "^[a-zA-Z0-9,.\\- ]*$", message = "Task Description must not contain special characters")
     String TaskDescription
 
 ) { }
