@@ -13,7 +13,7 @@ public record EditProjectDTO(
 
     @JsonProperty("project_description")
     @Size(min = 10, max = 100, message = "Project Description must be between 10 and 100 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Project Description must not contain special characters")
+    @Pattern(regexp = "^[a-zA-Z0-9,.\\- ]*$", message = "Project Description must not contain special characters")
     String projectDescription
 
 ) { }

@@ -13,7 +13,7 @@ public record EditTaskDTO(
 
     @JsonProperty("task_description")
     @Size(min = 10, max = 100, message = "Task Description must be between 10 and 100 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9 ]*$", message = "Task Description must not contain special characters")
+    @Pattern(regexp = "^[a-zA-Z0-9,.\\- ]*$", message = "Task Description must not contain special characters")
     String taskDescription
 
 ) { }
